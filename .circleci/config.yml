@@ -49,9 +49,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Disable Xdebug
-          command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-      - run:
           name: "Setup Environment Variables"
           command: |
             echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> $BASH_ENV
@@ -116,9 +113,6 @@ jobs:
       - image: circleci/mysql:5.7
     steps:
       - checkout
-      - run:
-          name: Disable Xdebug
-          command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - run:
           name: "Setup Environment Variables"
           command: |
