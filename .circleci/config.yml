@@ -63,7 +63,7 @@ jobs:
           name: Restore Cache
           keys:
             - node-cache-no-cypress-{{ checksum "package-lock.json" }}
-            - php56-composer-cache-{{ checksum "composer-lock.json" }}
+            - php56-composer-cache-{{ checksum "composer.lock" }}
       - run:
           name: Install Node Modules
           command: |
@@ -77,7 +77,7 @@ jobs:
             - ~/.npm
             - node_modules
       - save_cache:
-          key: php56-composer-cache-{{ checksum "composer-lock.json" }}
+          key: php56-composer-cache-{{ checksum "composer.lock" }}
           paths:
             - ~/.composer
             - vendor
@@ -134,7 +134,7 @@ jobs:
           name: Restore Cache
           keys:
             - node-cache-no-cypress-{{ checksum "package-lock.json" }}
-            - php73-composer-cache-{{ checksum "composer-lock.json" }}
+            - php73-composer-cache-{{ checksum "composer.lock" }}
       - run:
           name: Install Node Modules
           command: |
@@ -148,7 +148,7 @@ jobs:
             - ~/.npm
             - node_modules
       - save_cache:
-          key: php73-composer-cache-{{ checksum "composer-lock.json" }}
+          key: php73-composer-cache-{{ checksum "composer.lock" }}
           paths:
             - ~/.composer
             - vendor
@@ -240,7 +240,7 @@ jobs:
           name: Restore Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
-            - composer-cache-{{ checksum "composer-lock.json" }}
+            - composer-cache-{{ checksum "composer.lock" }}
       - run:
           name: Install Node Modules
           command: |
@@ -254,7 +254,7 @@ jobs:
             - ~/.npm
             - node_modules
       - save_cache:
-          key: composer-cache-{{ checksum "composer-lock.json" }}
+          key: composer-cache-{{ checksum "composer.lock" }}
           paths:
             - ~/.composer
             - vendor
@@ -373,7 +373,7 @@ jobs:
           name: Restore Cache
           keys:
             - node-cache-no-cypress-{{ checksum "package-lock.json" }}
-            - composer-cache-{{ checksum "composer-lock.json" }}
+            - composer-cache-{{ checksum "composer.lock" }}
       - run:
           name: Install Node Modules
           command: |
@@ -387,7 +387,7 @@ jobs:
             - ~/.npm
             - node_modules
       - save_cache:
-          key: composer-cache-{{ checksum "composer-lock.json" }}
+          key: composer-cache-{{ checksum "composer.lock" }}
           paths:
             - ~/.composer
             - vendor
@@ -451,7 +451,7 @@ jobs:
           name: Restore Cache
           keys:
             - node-cache-no-cypress-{{ checksum "package-lock.json" }}
-            - composer-cache-{{ checksum "composer-lock.json" }}
+            - composer-cache-{{ checksum "composer.lock" }}
       - run:
           name: Install Node Modules
           command: |
@@ -465,7 +465,7 @@ jobs:
             - ~/.npm
             - node_modules
       - save_cache:
-          key: composer-cache-{{ checksum "composer-lock.json" }}
+          key: composer-cache-{{ checksum "composer.lock" }}
           paths:
             - ~/.composer
             - vendor
