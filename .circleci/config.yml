@@ -49,7 +49,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Disable xdebug PHP extension
+          name: Disable Xdebug
           command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - run:
           name: "Setup Environment Variables"
@@ -57,19 +57,30 @@ jobs:
             echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> $BASH_ENV
             source /home/circleci/.bashrc
       - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
+          name: Skip Cypress
+          command: npm uninstall cypress
       - restore_cache:
-          key: php56-build-dependency-cache--{{ checksum "package.json" }}
+          name: Restore Cache
+          keys:
+            - node-cache-no-cypress-{{ checksum "package-lock.json" }}
+            - php56-composer-cache-{{ checksum "composer-lock.json" }}
       - run:
-          name: Install node packages
+          name: Install Node Modules
           command: |
-            npm uninstall cypress
-            npm install
+            if [ ! -d node_modules ]; then
+              sudo npm install -g npm@latest
+              npm ci
+            fi
       - save_cache:
-          key: php56-build-dependency-cache--{{ checksum "package.json" }}
+          key: node-cache-no-cypress-{{ checksum "package-lock.json" }}
           paths:
+            - ~/.npm
             - node_modules
+      - save_cache:
+          key: php56-composer-cache-{{ checksum "composer-lock.json" }}
+          paths:
+            - ~/.composer
+            - vendor
       - run:
           name: Install WP-CLI
           command: |
@@ -77,11 +88,11 @@ jobs:
             chmod +x wp-cli.phar
             sudo mv wp-cli.phar /usr/local/bin/wp
       - run:
-          name: Build the plugin
+          name: Build the Plugin
           command: |
             ./node_modules/.bin/grunt build
       - run:
-          name: "Install Dependencies"
+          name: "Install Test Dependencies"
           command: |
             bash .dev/bin/install-dependencies.sh
             cp -a $HOME/project /tmp/wordpress/wp-content/plugins/coblocks
@@ -109,7 +120,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Disable xdebug PHP extension
+          name: Disable Xdebug
           command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - run:
           name: "Setup Environment Variables"
@@ -117,19 +128,30 @@ jobs:
             echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> $BASH_ENV
             source /home/circleci/.bashrc
       - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
+          name: Skip Cypress
+          command: npm uninstall cypress
       - restore_cache:
-          key: php73-build-dependency-cache--{{ checksum "package.json" }}
+          name: Restore Cache
+          keys:
+            - node-cache-no-cypress-{{ checksum "package-lock.json" }}
+            - php73-composer-cache-{{ checksum "composer-lock.json" }}
       - run:
-          name: Install node packages
+          name: Install Node Modules
           command: |
-            npm uninstall cypress
-            npm install
+            if [ ! -d node_modules ]; then
+              sudo npm install -g npm@latest
+              npm ci
+            fi
       - save_cache:
-          key: php73-build-dependency-cache--{{ checksum "package.json" }}
+          key: node-cache-no-cypress-{{ checksum "package-lock.json" }}
           paths:
+            - ~/.npm
             - node_modules
+      - save_cache:
+          key: php73-composer-cache-{{ checksum "composer-lock.json" }}
+          paths:
+            - ~/.composer
+            - vendor
       - run:
           name: Install WP-CLI
           command: |
@@ -137,11 +159,11 @@ jobs:
             chmod +x wp-cli.phar
             sudo mv wp-cli.phar /usr/local/bin/wp
       - run:
-          name: Build the plugin
+          name: Build the Plugin
           command: |
             ./node_modules/.bin/grunt build
       - run:
-          name: "Install Dependencies"
+          name: "Install Test Dependencies"
           command: |
             bash .dev/bin/install-dependencies.sh
             cp -a $HOME/project /tmp/wordpress/wp-content/plugins/coblocks
@@ -164,28 +186,33 @@ jobs:
 
   jest:
     docker:
-      - image: circleci/node:latest-browsers-legacy
+      - image: circleci/node:latest
     steps:
       - checkout
       - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
+          name: Skip Cypress
+          command: npm uninstall cypress
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          name: Restore Cache
+          keys:
+            - node-cache-no-cypress-{{ checksum "package-lock.json" }}
       - run:
-          name: Install node packages
+          name: Install Node Modules
           command: |
-            npm uninstall cypress
-            npm install
+            if [ ! -d node_modules ]; then
+              sudo npm install -g npm@latest
+              npm ci
+            fi
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: node-cache-no-cypress-{{ checksum "package-lock.json" }}
           paths:
+            - ~/.npm
             - node_modules
       - run:
-          name: Run eslint
+          name: Run ESLint
           command: npx grunt eslint
       - run:
-          name: Run jest tests
+          name: Run Jest Tests
           command: JEST_JUNIT_OUTPUT_DIR="/tmp/artifacts/code-coverage/jest/" JEST_JUNIT_OUTPUT_NAME="results.xml" npm test -- --ci --runInBand --reporters="default" --reporters="jest-junit" --coverage --coverageDirectory=/tmp/artifacts/code-coverage/jest/html
       - store_artifacts:
           path: /tmp/artifacts/code-coverage/
@@ -195,7 +222,7 @@ jobs:
 
   e2e:
     docker:
-      - image: circleci/php:latest-node-browsers-legacy
+      - image: circleci/php:latest-node-browsers
       - image: circleci/mysql:5.7
     parallelism: 4
     steps:
@@ -204,29 +231,33 @@ jobs:
           name: Setup spec files to run based on git diff-tree
           command: bash .dev/bin/setup-test-specs.sh
       - run:
-          name: Disable xdebug PHP extension
+          name: Disable Xdebug
           command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - run:
-          name: Update hosts
+          name: Update Hosts
           command: echo 127.0.0.1 coblocks.test | sudo tee -a /etc/hosts
-      - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
       - restore_cache:
-          key: e2e-dependency-cache--{{ checksum "package.json" }}
+          name: Restore Cache
+          keys:
+            - node-cache-{{ checksum "package-lock.json" }}
+            - composer-cache-{{ checksum "composer-lock.json" }}
       - run:
-          name: Install node packages
-          command: npm install
-      - save_cache:
-          key: e2e-dependency-cache--{{ checksum "package.json" }}
-          paths:
-            - node_modules
-            - ~/.cache
-      - run:
-          name: "Install Dependencies"
+          name: Install Node Modules
           command: |
-            bash .dev/bin/install-dependencies.sh
-            cp -a $HOME/project /tmp/wordpress/wp-content/plugins/coblocks
+            if [ ! -d node_modules ]; then
+              sudo npm install -g npm@latest
+              npm ci
+            fi
+      - save_cache:
+          key: node-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+            - node_modules
+      - save_cache:
+          key: composer-cache-{{ checksum "composer-lock.json" }}
+          paths:
+            - ~/.composer
+            - vendor
       - run:
           name: Install WP-CLI
           command: |
@@ -234,7 +265,12 @@ jobs:
             chmod +x wp-cli.phar
             sudo mv wp-cli.phar /usr/local/bin/wp
       - run:
-          name: Build the plugin
+          name: "Install Test Dependencies"
+          command: |
+            bash .dev/bin/install-dependencies.sh
+            cp -a $HOME/project /tmp/wordpress/wp-content/plugins/coblocks
+      - run:
+          name: Build the Plugin
           command: |
             ./node_modules/.bin/grunt build
             cp -a ./build/coblocks /tmp/wordpress/wp-content/plugins/
@@ -246,12 +282,12 @@ jobs:
             wp plugin activate coblocks
           path: /tmp/wordpress
       - run:
-          name: "Start WPCLI Server"
+          name: "Start WP-CLI Server"
           command: sudo wp server --host=0.0.0.0 --port=80 --allow-root
           path: /tmp/wordpress
           background: true
       - run:
-          name: "Run end to end tests (Cypress.io)"
+          name: "Run E2E Tests (Cypress.io)"
           command: |
             touch .dev/tests/cypress/wp_creds.json
             echo '{"wpUsername":"admin","wpPassword":"password","testURL":"http://coblocks.test"}' | jq . > .dev/tests/cypress/wp_creds.json
@@ -260,32 +296,37 @@ jobs:
 
   i18n:
     docker:
-      - image: circleci/node:latest-browsers-legacy
+      - image: circleci/php:latest-node
     steps:
       - add_ssh_keys:
           fingerprints:
             - "14:ee:bc:31:0f:50:7e:fe:8b:56:87:f8:56:db:48:5b"
       - checkout
       - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
+          name: Disable Xdebug
+          command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - run:
-          name: Install PHP
-          command: sudo apt-get install php libapache2-mod-php php-mbstring
+          name: Skip Cypress
+          command: npm uninstall cypress
+      - restore_cache:
+          name: Restore Cache
+          keys:
+            - node-cache-no-cypress-{{ checksum "package-lock.json" }}
       - run:
-          name: Disable xdebug PHP extension
+          name: Install Node Modules
           command: |
-            sudo rm -f /etc/php/*/mods-available/xdebug.ini
-            sudo rm -f /etc/php/*/mods-enabled/xdebug.ini
-            sudo rm -f /etc/php/*/conf.d/*xdebug.ini
+            if [ ! -d node_modules ]; then
+              sudo npm install -g npm@latest
+              npm ci
+            fi
+      - save_cache:
+          key: node-cache-no-cypress-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+            - node_modules
       - run:
           name: Install gettext
           command: sudo apt-get install gettext
-      - run:
-          name: Install node packages
-          command: |
-            npm uninstall cypress
-            npm install
       - run:
           name: Install WP-CLI
           command: |
@@ -293,12 +334,12 @@ jobs:
             chmod +x wp-cli.phar
             sudo mv wp-cli.phar /usr/local/bin/wp
       - run:
-          name: Generate the translations
+          name: Generate POT
           command: |
             mv ../project ../coblocks
             npm run babel:build
       - run:
-          name: Deploy coblocks.pot/coblocks.json back to GitHub
+          name: Push POT to GitHub
           command: |
             export GIT_COMMIT_DESC=$(git log --format=oneline -n 1 $CIRCLE_SHA1)
             if [[ $GIT_COMMIT_DESC != *"skip i18n"* ]]; then
@@ -313,33 +354,57 @@ jobs:
 
   canary-release:
     docker:
-      - image: circleci/golang:latest-node-browsers-legacy
+      - image: circleci/php:latest-node
     steps:
       - add_ssh_keys:
           fingerprints:
             - "0e:f8:0a:19:88:42:c3:5a:b9:82:17:34:6b:40:68:21"
       - checkout
       - run:
-          name: Add CoBlocks i18n staging site to known_hosts
+          name: Update known_hosts
           command: ssh-keyscan -H a90.8f7.myftpupload.com >> ~/.ssh/known_hosts
       - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
+          name: Disable Xdebug
+          command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - run:
+          name: Skip Cypress
+          command: npm uninstall cypress
+      - restore_cache:
+          name: Restore Cache
+          keys:
+            - node-cache-no-cypress-{{ checksum "package-lock.json" }}
+            - composer-cache-{{ checksum "composer-lock.json" }}
+      - run:
+          name: Install Node Modules
+          command: |
+            if [ ! -d node_modules ]; then
+              sudo npm install -g npm@latest
+              npm ci
+            fi
+      - save_cache:
+          key: node-cache-no-cypress-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+            - node_modules
+      - save_cache:
+          key: composer-cache-{{ checksum "composer-lock.json" }}
+          paths:
+            - ~/.composer
+            - vendor
       - run:
           name: Install Grunt.js
           command: sudo npm install -g grunt-cli
       - run:
-          name: Install PHP
-          command: sudo apt-get install php libapache2-mod-php php-mbstring
-      - run:
-          name: Disable xdebug PHP extension
-          command: |
-            sudo rm -f /etc/php/*/mods-available/xdebug.ini
-            sudo rm -f /etc/php/*/mods-enabled/xdebug.ini
-            sudo rm -f /etc/php/*/conf.d/*xdebug.ini
-      - run:
           name: Install gettext
           command: sudo apt-get install gettext
+      - run:
+          name: Install GHR
+          command: |
+            curl -o ghr.tar.gz -SL https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
+            mkdir -p /tmp/ghr
+            tar -xzf ghr.tar.gz --strip 1 -C /tmp/ghr
+            chmod +x /tmp/ghr/ghr
+            sudo mv /tmp/ghr/ghr /usr/local/bin/ghr
       - run:
           name: Install WP-CLI
           command: |
@@ -347,16 +412,7 @@ jobs:
             chmod +x wp-cli.phar
             sudo mv wp-cli.phar /usr/local/bin/wp
       - run:
-          name: Install ghr
-          command: |
-            go get -u github.com/tcnksm/ghr
-      - run:
-          name: Install node packages
-          command: |
-            npm uninstall cypress
-            npm install
-      - run:
-          name: Build the plugin
+          name: Build the Plugin
           command: |
             mkdir -p /tmp/artifacts
             grunt build
@@ -372,37 +428,53 @@ jobs:
             cd build && zip -r coblocks-canary.zip coblocks
             mv coblocks-canary.zip /tmp/artifacts/coblocks-canary.zip
       - run:
-          name: Deploy plugin to the CoBlocks i18n staging site
+          name: Deploy to i18n Staging Site
           command: |
             scp -r /tmp/artifacts/coblocks-canary.zip ${STAGING_SITE_SSH_CREDS}:html/wp-content/
             ssh ${STAGING_SITE_SSH_CREDS} 'cd html/wp-content && wp plugin install coblocks-canary.zip --force --activate --skip-themes --skip-plugins && rm -rf coblocks-canary.zip languages/plugins/coblocks-*'
       - deploy:
-          name: Create a canary release on GitHub
+          name: Push Canary Release to GitHub
           command: ghr -t ${GH_ACCESS_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -b "Latest build of the master branch. This bleeding edge version is for testing purposes only and should not be used in production." -delete -prerelease -replace canary /tmp/artifacts/coblocks-canary.zip
 
   deploy:
     docker:
-      - image: circleci/golang:latest-node-browsers-legacy
+      - image: circleci/php:latest-node
     steps:
       - checkout
       - run:
-          name: Update npm
-          command: sudo npm install -g npm@latest
+          name: Disable Xdebug
+          command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - run:
+          name: Skip Cypress
+          command: npm uninstall cypress
+      - restore_cache:
+          name: Restore Cache
+          keys:
+            - node-cache-no-cypress-{{ checksum "package-lock.json" }}
+            - composer-cache-{{ checksum "composer-lock.json" }}
+      - run:
+          name: Install Node Modules
+          command: |
+            if [ ! -d node_modules ]; then
+              sudo npm install -g npm@latest
+              npm ci
+            fi
+      - save_cache:
+          key: node-cache-no-cypress-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+            - node_modules
+      - save_cache:
+          key: composer-cache-{{ checksum "composer-lock.json" }}
+          paths:
+            - ~/.composer
+            - vendor
       - run:
           name: Install Grunt.js
           command: sudo npm install -g grunt-cli
       - run:
           name: Install SVN
           command: sudo apt-get update && sudo apt-get install subversion
-      - run:
-          name: Install PHP
-          command: sudo apt-get install php libapache2-mod-php php-mbstring
-      - run:
-          name: Disable xdebug PHP extension
-          command: |
-            sudo rm -f /etc/php/*/mods-available/xdebug.ini
-            sudo rm -f /etc/php/*/mods-enabled/xdebug.ini
-            sudo rm -f /etc/php/*/conf.d/*xdebug.ini
       - run:
           name: Install gettext
           command: sudo apt-get install gettext
@@ -413,23 +485,22 @@ jobs:
             chmod +x wp-cli.phar
             sudo mv wp-cli.phar /usr/local/bin/wp
       - run:
-          name: Install ghr
+          name: Install GHR
           command: |
-            go get -u github.com/tcnksm/ghr
+            curl -o ghr.tar.gz -SL https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
+            mkdir -p /tmp/ghr
+            tar -xzf ghr.tar.gz --strip 1 -C /tmp/ghr
+            chmod +x /tmp/ghr/ghr
+            sudo mv /tmp/ghr/ghr /usr/local/bin/ghr
       - run:
-          name: Install node packages
-          command: |
-            npm uninstall cypress
-            npm install
-      - run:
-          name: Build the plugin
+          name: Build the Plugin
           command: |
             mkdir -p /tmp/artifacts
             grunt build
             grunt compress
             mv build/*.zip /tmp/artifacts
       - deploy:
-          name: Deploy the plugin
+          name: Deploy the Plugin to WordPress.org
           command: bash .dev/bin/deploy-plugin.sh
       - store_artifacts:
           path: /tmp/artifacts
