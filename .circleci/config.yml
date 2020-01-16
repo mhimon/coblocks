@@ -57,7 +57,7 @@ jobs:
             echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> $BASH_ENV
             source /home/circleci/.bashrc
       - restore_cache:
-          name: Restore Cache
+          name: Load Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
             - php56-composer-cache-{{ checksum "composer.lock" }}
@@ -125,7 +125,7 @@ jobs:
             echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> $BASH_ENV
             source /home/circleci/.bashrc
       - restore_cache:
-          name: Restore Cache
+          name: Load Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
             - php73-composer-cache-{{ checksum "composer.lock" }}
@@ -184,7 +184,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: Restore Cache
+          name: Load Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
       - run:
@@ -228,7 +228,7 @@ jobs:
           name: Update Hosts
           command: echo 127.0.0.1 coblocks.test | sudo tee -a /etc/hosts
       - restore_cache:
-          name: Restore Cache
+          name: Load Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
             - composer-cache-{{ checksum "composer.lock" }}
@@ -297,7 +297,7 @@ jobs:
           name: Disable Xdebug
           command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - restore_cache:
-          name: Restore Cache
+          name: Load Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
       - run:
@@ -355,7 +355,7 @@ jobs:
           name: Disable Xdebug
           command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - restore_cache:
-          name: Restore Cache
+          name: Load Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
             - composer-cache-{{ checksum "composer.lock" }}
@@ -430,7 +430,7 @@ jobs:
           name: Disable Xdebug
           command: sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - restore_cache:
-          name: Restore Cache
+          name: Load Cache
           keys:
             - node-cache-{{ checksum "package-lock.json" }}
             - composer-cache-{{ checksum "composer.lock" }}
