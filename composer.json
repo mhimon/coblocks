@@ -22,7 +22,8 @@
 		"godaddy-wordpress/pot2json": "^1.0"
 	},
 	"scripts": {
-		"lint": "@php ./vendor/bin/phpcs",
-		"test": "@php ./vendor/bin/phpunit"
+		"format": "@php ./vendor/bin/phpcbf --standard=phpcs.xml --report-summary --report-source",
+		"lint": "@php ./vendor/bin/phpcs --standard=phpcs.xml",
+		"test": "@php ./vendor/bin/phpunit -c phpunit.xml.dist --verbose"
 	}
 }
