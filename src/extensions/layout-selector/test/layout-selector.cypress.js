@@ -30,7 +30,7 @@ describe( 'Extension: Layout Selector', () => {
 		cy.get( '.coblocks-layout-selector__sidebar__item:nth-child(3)' ).find( 'a' ).click();
 		cy.get( '.coblocks-layout-selector__layouts .coblocks-layout-selector__layout' ).should( 'not.have.length', 0 );
 
-		// Click "Portfolio" category.
+		// Click "Gallery" category.
 		cy.get( '.coblocks-layout-selector__sidebar__item:nth-child(4)' ).find( 'a' ).click();
 		cy.get( '.coblocks-layout-selector__layouts .coblocks-layout-selector__layout' ).should( 'not.have.length', 0 );
 	} );

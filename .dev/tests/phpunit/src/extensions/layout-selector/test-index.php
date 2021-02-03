@@ -39,7 +39,7 @@ class CoBlocks_Layout_Selector_Tests extends WP_UnitTestCase {
 		$this->assertContains( 'about', $categories_slugs );
 		$this->assertContains( 'contact', $categories_slugs );
 		$this->assertContains( 'home', $categories_slugs );
-		$this->assertContains( 'portfolio', $categories_slugs );
+		$this->assertContains( 'gallery', $categories_slugs );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class CoBlocks_Layout_Selector_Tests extends WP_UnitTestCase {
 		$this->assertNotContains( 'about', $categories_slugs );
 		$this->assertNotContains( 'contact', $categories_slugs );
 		$this->assertNotContains( 'home', $categories_slugs );
-		$this->assertNotContains( 'portfolio', $categories_slugs );
+		$this->assertNotContains( 'gallery', $categories_slugs );
 
 		$this->assertContains( 'filtered', $categories_slugs );
 	}

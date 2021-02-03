@@ -29,8 +29,8 @@ function coblocks_layout_selector_categories() {
 			'title' => __( 'Home', 'coblocks' ),
 		),
 		array(
-			'slug'  => 'portfolio',
-			'title' => __( 'Portfolio', 'coblocks' ),
+			'slug'  => 'gallery',
+			'title' => __( 'Gallery', 'coblocks' ),
 		),
 	);
 

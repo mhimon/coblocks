@@ -14,8 +14,8 @@ const coblocksLayoutSelector = {
             title: 'Home',
         },
         {
-            slug: 'portfolio',
-            title: 'Portfolio',
+            slug: 'gallery',
+            title: 'Gallery',
         },
     ],
     layouts: [
@@ -102,14 +102,14 @@ const coblocksLayoutSelector = {
             ],
         },
         {
-            category: 'portfolio',
-            label: 'Portfolio Test',
+            category: 'gallery',
+            label: 'Gallery Test',
             blocks: [
                 [
                     "core/paragraph",
                     {
                         align: "center",
-                        content: "Test Portfolio Layout.",
+                        content: "Test Gallery Layout.",
                         dropCap: false
                     },
                     []
